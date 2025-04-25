@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Website - TrulyFAQ Integration</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Test Website</h1>
+            <p>Demonstrating TrulyFAQ Integration</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="ask-question">
+            <h2>Ask a Question</h2>
+            <form id="truelyfaq-question-form">
+                <div class="form-group">
+                    <label for="truelyfaq-email">Your Email</label>
+                    <input type="email" id="truelyfaq-email" required placeholder="your.email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="truelyfaq-question">Your Question</label>
+                    <textarea id="truelyfaq-question" required placeholder="What would you like to know?"></textarea>
+                </div>
+                <button type="submit" id="truelyfaq-submit">Submit Question</button>
+                <div id="truelyfaq-status" class="status-message"></div>
+            </form>
+        </section>
+
+        <section class="faqs">
+            <h2>Frequently Asked Questions</h2>
+            <div id="truelyfaq-faqs" class="faq-container">
+                <p class="loading">Loading FAQs...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Test Website. Powered by TrulyFAQ.</p>
+        </div>
+    </footer>
+
+    <script src="truelyfaq-client.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
