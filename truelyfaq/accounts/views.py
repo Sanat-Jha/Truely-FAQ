@@ -47,6 +47,31 @@ def dashboard(request):
     return render(request, 'accounts/dashboard.html', context)
 
 @login_required
+def delete_website(request, website_id):
+    website = Website.objects.get(id=website_id)
+
+    # Ensure the user owns the website
+    if website.owner != request.user:
+        messages.error(request, "You don't have permission to delete this website.")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        try:
+            website_name = website.name
+            # Deleting the website will cascade and delete related Questions, Answers, FAQs
+            # Ensure your models have on_delete=models.CASCADE set up correctly for this.
+            website.delete()
+            messages.success(request, f'Website "{website_name}" and all its data have been deleted successfully.')
+        except Exception as e:
+            # Log the exception e for debugging if needed
+            messages.error(request, f"An error occurred while deleting the website.")
+        return redirect('dashboard')
+    else:
+        # Redirect GET requests back to dashboard
+        messages.warning(request, "Use the delete button on the dashboard to delete a website.")
+        return redirect('dashboard')
+
+@login_required
 def website_detail(request, website_id):
     try:
         website = Website.objects.get(id=website_id, owner=request.user)

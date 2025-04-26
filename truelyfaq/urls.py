@@ -28,7 +28,9 @@ urlpatterns = [
     path('questions/', include('truelyfaq.questions.urls')),
     path('faqs/', include('truelyfaq.faqs.urls')),
     path('api/', include('truelyfaq.api.urls')),
+    # Landing page and documentation URLs
     path('', TemplateView.as_view(template_name='index.html'), name='home'),
+    path('documentation/', TemplateView.as_view(template_name='documentation.html'), name='documentation'),
 ]
 
 if settings.DEBUG:

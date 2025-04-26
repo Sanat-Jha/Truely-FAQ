@@ -8,4 +8,5 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('website/<int:website_id>/', views.website_detail, name='website_detail'),
+    path('website/<int:website_id>/delete/', views.delete_website, name='delete_website'), # Add this line for the delete URL
 ]

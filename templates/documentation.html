@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - TrulyFAQ</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/landing.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a href="/" class="logo">TrulyFAQ</a>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="#api">API</a></li>
+                    <li><a href="/accounts/login" class="btn btn-secondary">Login</a></li>
+                    <li><a href="/accounts/register" class="btn btn-primary">Sign Up</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container docs-main">
+        <h1>TrulyFAQ Documentation</h1>
+        <p>Learn how to integrate TrulyFAQ into your website.</p>
+
+        <section id="getting-started" class="reveal">
+            <h2><i class="fas fa-rocket"></i> Getting Started</h2>
+            <ol>
+                <li><strong>Create an account:</strong> <a href="/accounts/register">Sign up</a> for a TrulyFAQ account.</li>
+                <li><strong>Add your website:</strong> From your dashboard, add the website where you want to implement TrulyFAQ.</li>
+                <li><strong>Get your API key:</strong> Each website has a unique API key that you'll need for integration.</li>
+            </ol>
+        </section>
+
+        <section id="api" class="reveal">
+            <h2><i class="fas fa-code"></i> API Integration</h2>
+            <p>TrulyFAQ provides two simple API endpoints for submitting questions and retrieving FAQs.</p>
+
+            <h3>Submit a Question</h3>
+            <p>Use this code to submit a question from your contact form:</p>
+            <pre><code>const response = await fetch(`{hosting url}/questions/submit/`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': this.apiKey
+    },
+    body: JSON.stringify({
+        user_email: email,
+        question_text: question
+    })
+});</code></pre>
+
+            <h3>Fetch FAQs</h3>
+            <p>Use this code to retrieve FAQs for display on your website:</p>
+            <pre><code>const response = await fetch(`{hosting url}/faqs/`, {
+    method: 'GET',
+    headers: {
+        'X-Api-Key': this.apiKey
+    }
+});</code></pre>
+            <p>The response will contain a JSON object with FAQs that you can display on your site.</p>
+        </section>
+
+        <section id="dashboard" class="reveal">
+            <h2><i class="fas fa-tachometer-alt"></i> Dashboard Usage</h2>
+            <p>After logging in, you can:</p>
+            <ul>
+                <li><strong>Manage Websites:</strong> Add, view, and delete websites from your account.</li>
+                <li><strong>Answer Questions:</strong> View and respond to user questions.</li>
+                <li><strong>Manage FAQs:</strong> Edit, delete, or toggle visibility of automatically generated FAQs.</li>
+            </ul>
+        </section>
+
+        <section id="support" class="reveal">
+            <h2><i class="fas fa-headset"></i> Support</h2>
+            <p>If you need help with TrulyFAQ, please contact our support team:</p>
+            <ul>
+                <li>Email: <a href="mailto:support@truelyfaq.com">support@truelyfaq.com</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TrulyFAQ. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll reveal animation
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            reveals.forEach(element => {
+                const windowHeight = window.innerHeight;
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.padding = '0.7rem 0';
+                navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+            } else {
+                navbar.style.padding = '1rem 0';
+                navbar.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
