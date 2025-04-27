@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Website
 from truelyfaq.questions.models import Question
+from truelyfaq.faqs.models import FAQ
+from django.http import JsonResponse
 
 def register(request):
     if request.method == 'POST':
@@ -18,30 +20,28 @@ def register(request):
 
 @login_required
 def dashboard(request):
+    # Get all websites for the current user
+    # Changed 'user' to 'owner' to match the model field name
     websites = Website.objects.filter(owner=request.user)
     
-    if request.method == 'POST':
-        # Handle website creation
-        name = request.POST.get('name')
-        url = request.POST.get('url')
-        
-        if name and url:
-            website = Website(owner=request.user, name=name, url=url)
-            website.save()
-            messages.success(request, f'Website "{name}" added successfully.')
-            return redirect('dashboard')
-        else:
-            messages.error(request, 'Please provide both name and URL for the website.')
+    # Calculate total questions across all user websites
+    total_questions = Question.objects.filter(website__in=websites).count()
     
-    # Get unanswered questions count for each website
+    # Calculate total FAQs across all user websites
+    total_faqs = FAQ.objects.filter(website__in=websites).count()
+    
+    # Add unanswered count and FAQ count to each website
     for website in websites:
         website.unanswered_count = Question.objects.filter(
             website=website, 
             is_answered=False
         ).count()
+        website.faq_count = FAQ.objects.filter(website=website).count()
     
     context = {
-        'websites': websites
+        'websites': websites,
+        'total_questions': total_questions,
+        'total_faqs': total_faqs,
     }
     
     return render(request, 'accounts/dashboard.html', context)
@@ -82,6 +82,9 @@ def website_detail(request, website_id):
     # Get all questions for this website
     questions = Question.objects.filter(website=website).order_by('-created_at')
     
+    # Get all FAQs for this website
+    faqs = FAQ.objects.filter(website=website).order_by('-created_at')
+    
     # Calculate unanswered count
     unanswered_count = questions.filter(is_answered=False).count()
     
@@ -95,7 +98,33 @@ def website_detail(request, website_id):
     context = {
         'website': website,
         'questions': questions,
+        'faqs': faqs,  # Add FAQs to the context
         'unanswered_count': unanswered_count
     }
     
     return render(request, 'accounts/website_detail.html', context)
+
+@login_required
+def toggle_faq_visibility(request, faq_id):
+    """Toggle the visibility of a FAQ"""
+    if request.method == 'POST':
+        try:
+            faq = get_object_or_404(FAQ, id=faq_id)
+            
+            # Ensure the user owns the website this FAQ belongs to
+            if faq.website.owner != request.user:
+                return JsonResponse({'success': False, 'message': 'Permission denied'}, status=403)
+            
+            # Toggle the visibility
+            faq.is_visible = not faq.is_visible
+            faq.save()
+            
+            return JsonResponse({
+                'success': True, 
+                'is_visible': faq.is_visible,
+                'message': f'FAQ is now {"visible" if faq.is_visible else "hidden"}'
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=400)
