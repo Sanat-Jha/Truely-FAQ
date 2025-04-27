@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Count
-import groq
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -89,8 +88,6 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Count
-import groq
-
 from truelyfaq.accounts.models import Website
 from truelyfaq.questions.models import Question, Answer
 from truelyfaq.faqs.models import FAQ
