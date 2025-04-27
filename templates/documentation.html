@@ -8,15 +8,42 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/landing.css">
+    <link rel="shortcut icon" href="/static/img/logo.png" type="image/x-icon">
+    <style>
+        /* Logo styling */
+.logo {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: #333;
+}
+
+.logo-img {
+    height: 32px;
+    margin-right: 8px;
+}
+
+/* Active link styling */
+.navbar nav ul li a.active {
+    font-weight: 600;
+    color: #3B82F6;
+}
+    </style>
 </head>
 <body>
     <header class="navbar">
         <div class="container">
-            <a href="/" class="logo">TrulyFAQ</a>
+            <a href="/" class="logo">
+                <img src="/static/img/logo.png" alt="TrulyFAQ Logo" class="logo-img">
+                TrulyFAQ
+            </a>
             <nav>
                 <ul>
                     <li><a href="/">Home</a></li>
                     <li><a href="#api">API</a></li>
+                    <li><a href="/documentation" class="active">Documentation</a></li>
                     <li><a href="/accounts/login" class="btn btn-secondary">Login</a></li>
                     <li><a href="/accounts/register" class="btn btn-primary">Sign Up</a></li>
                 </ul>
