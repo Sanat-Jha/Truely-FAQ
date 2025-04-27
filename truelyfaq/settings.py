@@ -170,12 +170,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'cerebralenigma1@gmail.com'
-EMAIL_HOST_PASSWORD = 'jajr txuc ixjn luaf'
+EMAIL_HOST_USER = 'truelyfaq@gmail.com'
+EMAIL_HOST_PASSWORD = 'vler pgft pzhc pimv'
 
 
-# Groq AI API settings
-GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
+
 FAQ_SIMILARITY_THRESHOLD = float(os.getenv('FAQ_SIMILARITY_THRESHOLD', '0.3'))
 
 # Add this to your settings.py file (near the bottom is fine)

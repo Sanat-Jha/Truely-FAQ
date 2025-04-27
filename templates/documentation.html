@@ -43,7 +43,7 @@
 
             <h3>Submit a Question</h3>
             <p>Use this code to submit a question from your contact form:</p>
-            <pre><code>const response = await fetch(`{hosting url}/questions/submit/`, {
+            <pre><code>const response = await fetch(`{hosting url}/api/questions/submit/`, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -57,7 +57,7 @@
 
             <h3>Fetch FAQs</h3>
             <p>Use this code to retrieve FAQs for display on your website:</p>
-            <pre><code>const response = await fetch(`{hosting url}/faqs/`, {
+            <pre><code>const response = await fetch(`{hosting url}/api/faqs/`, {
     method: 'GET',
     headers: {
         'X-Api-Key': this.apiKey
@@ -80,7 +80,7 @@
             <h2><i class="fas fa-headset"></i> Support</h2>
             <p>If you need help with TrulyFAQ, please contact our support team:</p>
             <ul>
-                <li>Email: <a href="mailto:support@truelyfaq.com">support@truelyfaq.com</a></li>
+                <li>Email: <a href="mailto:support@truelyfaq.com">truelyfaq@gmail.com</a></li>
             </ul>
         </section>
     </main>

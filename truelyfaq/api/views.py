@@ -165,6 +165,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             self._send_answer_email(question, answer)
             
             # Check if this should be added to FAQs
+            print("Checking for FAQ...1")  # Debugging line
             self._check_for_faq(question, answer)
             
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -197,59 +198,35 @@ class QuestionViewSet(viewsets.ModelViewSet):
             print(f"Error sending email: {e}")
 
     def _check_for_faq(self, question, answer):
-        # Get all questions for this website
-        website = question.website
-        total_questions = Question.objects.filter(website=website).count()
+        """
+        Check if this question should be added to FAQs.
+        Uses the comprehensive check_similar_questions function from faqs.utils.
+        """
+        from truelyfaq.faqs.utils import check_similar_questions
         
-        if total_questions < 5:  # Skip if there are too few questions
-            return
-        
-        # Use Groq AI to find similar questions
-        client = groq.Client(api_key=settings.GROQ_API_KEY)
-        
-        # Get all existing questions and their answers
-        questions_with_answers = Question.objects.filter(
-            website=website, 
-            is_answered=True
-        ).exclude(id=question.id)
-        
-        similar_count = 0
-        
-        for q in questions_with_answers:
-            try:
-                response = client.chat.completions.create(
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are an AI assistant that determines if two questions are similar. Respond with a number between 0 and 1, where 0 means completely different and 1 means identical in meaning."
-                        },
-                        {
-                            "role": "user",
-                            "content": f"Question 1: {question.question_text}\nQuestion 2: {q.question_text}\n\nHow similar are these questions? Respond with only a number between 0 and 1."
-                        }
-                    ],
-                    model="llama2-70b-4096",
-                )
+        try:
+            # Mark the question as answered if not already
+            if not question.is_answered:
+                question.is_answered = True
+                question.save(update_fields=['is_answered'])
+            
+            # Use the comprehensive check_similar_questions function
+            print("Checking for FAQ...2")  # Debugging line
+            faq = check_similar_questions(question)
+            
+            if faq:
+                print(f"Question {question.id} added to FAQ {faq.id}")
+                return faq
+            else:
+                print(f"Question {question.id} not added to any FAQ")
+                return None
                 
-                similarity_score = float(response.choices[0].message.content.strip())
-                if similarity_score > 0.7:  # High similarity threshold
-                    similar_count += 1
-            except Exception as e:
-                # Log the error but continue processing
-                print(f"Error checking similarity: {e}")
-                continue
-        
-        # Calculate the percentage of similar questions
-        similarity_percentage = similar_count / total_questions
-        
-        # If the percentage exceeds the threshold, add to FAQ
-        if similarity_percentage >= settings.FAQ_SIMILARITY_THRESHOLD:
-            FAQ.objects.create(
-                website=website,
-                question_text=question.question_text,
-                answer_text=answer.answer_text,
-                similarity_count=similar_count
-            )
+        except Exception as e:
+            # Log the error but don't fail the request
+            print(f"Error checking for FAQ: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
 
 class FAQViewSet(viewsets.ModelViewSet):
     serializer_class = FAQSerializer
