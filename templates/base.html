@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TrulyFAQ{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="shortcut icon" href="static/img/logo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/img/logo.png" type="image/x-icon">
     <script>
         tailwind.config = {
             theme: {
@@ -24,15 +24,20 @@
 <body class="bg-gray-50 min-h-screen">
     <nav class="bg-dark text-white shadow-md">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="{% url 'dashboard' %}" class="text-xl font-bold">TrulyFAQ</a>
-            <div>
+            <a href="{% url 'dashboard' %}" class="flex items-center">
+                <img src="/static/img/logo.png" alt="TrulyFAQ Logo" class="h-8 mr-2">
+                <span class="text-xl font-bold">TrulyFAQ</span>
+            </a>
+            <div class="flex items-center space-x-4">
                 {% if user.is_authenticated %}
                     <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded hover:bg-gray-700">Dashboard</a>
+                    <a href="/documentation" class="px-3 py-2 rounded hover:bg-gray-700">Documentation</a>
                     <form method="post" action="{% url 'logout' %}" class="inline">
                         {% csrf_token %}
                         <button type="submit" class="px-3 py-2 rounded hover:bg-gray-700">Logout</button>
                     </form>
                 {% else %}
+                    <a href="/documentation" class="px-3 py-2 rounded hover:bg-gray-700">Documentation</a>
                     <a href="{% url 'login' %}" class="px-3 py-2 rounded hover:bg-gray-700">Login</a>
                     <a href="{% url 'register' %}" class="px-3 py-2 rounded hover:bg-gray-700">Register</a>
                 {% endif %}
