@@ -1,0 +1,96 @@
+<!-- ... existing template code ... -->
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>FAQs</h5>
+    </div>
+    <div class="card-body">
+        {% if faqs %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Answer</th>
+                        <th>Visibility</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for faq in faqs %}
+                        <tr>
+                            <td>{{ faq.question }}</td>
+                            <td>{{ faq.answer|truncatechars:50 }}</td>
+                            <td>
+                                <span class="badge {% if faq.is_visible %}bg-success{% else %}bg-secondary{% endif %}" id="visibility-badge-{{ faq.id }}">
+                                    {% if faq.is_visible %}Visible{% else %}Hidden{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm {% if faq.is_visible %}btn-warning{% else %}btn-success{% endif %} toggle-visibility" 
+                                        data-faq-id="{{ faq.id }}" id="toggle-btn-{{ faq.id }}">
+                                    {% if faq.is_visible %}Hide{% else %}Show{% endif %}
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No FAQs available for this website.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add JavaScript for the toggle functionality -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.toggle-visibility');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const faqId = this.getAttribute('data-faq-id');
+                
+                fetch(`/accounts/faq/${faqId}/toggle-visibility/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the button text and class
+                        const button = document.getElementById(`toggle-btn-${faqId}`);
+                        const badge = document.getElementById(`visibility-badge-${faqId}`);
+                        
+                        if (data.is_visible) {
+                            button.textContent = 'Hide';
+                            button.classList.remove('btn-success');
+                            button.classList.add('btn-warning');
+                            badge.textContent = 'Visible';
+                            badge.classList.remove('bg-secondary');
+                            badge.classList.add('bg-success');
+                        } else {
+                            button.textContent = 'Show';
+                            button.classList.remove('btn-warning');
+                            button.classList.add('btn-success');
+                            badge.textContent = 'Hidden';
+                            badge.classList.remove('bg-success');
+                            badge.classList.add('bg-secondary');
+                        }
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while toggling visibility.');
+                });
+            });
+        });
+    });
+</script>
+
+<!-- ... rest of the template ... -->
