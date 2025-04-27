@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrulyFAQ Test Website</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a href="/" class="logo">Test Website</a>
+            <nav>
+                <ul>
+                    <li><a href="#faq-section">FAQs</a></li>
+                    <li><a href="#ask-question">Ask a Question</a></li>
+                    <li><a href="#debug-info">Debug Info</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Welcome to Our Test Website</h1>
+            <p>This is a demonstration of TrulyFAQ integration. Browse our FAQs or ask a new question.</p>
+        </div>
+    </section>
+
+    <section id="faq-section" class="faqs">
+        <div class="container">
+            <h2>Frequently Asked Questions</h2>
+            <div id="faq-container" class="faq-list">
+                <div class="loading">Loading FAQs...</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="ask-question" class="question-form">
+        <div class="container">
+            <h2>Ask a Question</h2>
+            <form id="question-form">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Your Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="question">Your Question</label>
+                    <textarea id="question" name="question" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Question</button>
+            </form>
+            <div id="form-response" class="form-response"></div>
+        </div>
+    </section>
+
+    <section id="debug-info" class="debug-section">
+        <div class="container">
+            <h2>Debug Information</h2>
+            <div id="debug-container">
+                <div class="debug-item">
+                    <h3>API Connection Status</h3>
+                    <div id="api-status">Checking API connection...</div>
+                </div>
+                <div class="debug-item">
+                    <h3>FAQ Fetch Response</h3>
+                    <pre id="faq-response">No data yet</pre>
+                </div>
+                <div class="debug-item">
+                    <h3>Question Submit Response</h3>
+                    <pre id="question-response">No data yet</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Test Website. Powered by TrulyFAQ.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
