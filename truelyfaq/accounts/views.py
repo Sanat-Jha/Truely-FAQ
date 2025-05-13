@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Website
+from .forms import WebsiteForm  # Import the WebsiteForm
 from truelyfaq.questions.models import Question
 from truelyfaq.faqs.models import FAQ
 from django.http import JsonResponse
@@ -20,8 +21,26 @@ def register(request):
 
 @login_required
 def dashboard(request):
+    # Check if this is a POST request for creating a new website
+    if request.method == 'POST':
+        # Create a form instance with POST data
+        form = WebsiteForm(request.POST)
+        if form.is_valid():
+            # Create the website but don't save to DB yet
+            website = form.save(commit=False)
+            # Set the owner to the current user
+            website.owner = request.user
+            # Now save to DB
+            website.save()
+            messages.success(request, f'Website "{website.name}" created successfully!')
+            return redirect('dashboard')
+        else:
+            # If the form is not valid, show error message
+            messages.error(request, 'There was an error creating your website. Please check the form.')
+    else:
+        form = WebsiteForm()
+    
     # Get all websites for the current user
-    # Changed 'user' to 'owner' to match the model field name
     websites = Website.objects.filter(owner=request.user)
     
     # Calculate total questions across all user websites
@@ -42,6 +61,7 @@ def dashboard(request):
         'websites': websites,
         'total_questions': total_questions,
         'total_faqs': total_faqs,
+        'form': form,  # Include the form in the context
     }
     
     return render(request, 'accounts/dashboard.html', context)
