@@ -146,3 +146,28 @@ def toggle_faq_visibility(request, faq_id):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
     
     return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=400)
+
+@login_required
+def edit_faq(request, faq_id):
+    """Edit an existing FAQ"""
+    faq = get_object_or_404(FAQ, id=faq_id)
+    
+    # Ensure the user owns the website this FAQ belongs to
+    if faq.website.owner != request.user:
+        messages.error(request, "You don't have permission to edit this FAQ.")
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        question_text = request.POST.get('question_text')
+        answer_text = request.POST.get('answer_text')
+        
+        if question_text and answer_text:
+            faq.question_text = question_text
+            faq.answer_text = answer_text
+            faq.save()
+            messages.success(request, 'FAQ updated successfully.')
+            return redirect('website_detail', website_id=faq.website.id)
+        else:
+            messages.error(request, 'Both question and answer are required.')
+    
+    return redirect('website_detail', website_id=faq.website.id)
