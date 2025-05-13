@@ -1,38 +1,104 @@
-# your_app_name/utils/nlp_similarity.py
+# truelyfaq/faqs/nlp_similarity.py
 
 import logging
+import re
+import math
 from typing import List, Tuple, Optional
-from sentence_transformers import SentenceTransformer, util
+from collections import Counter
+from django.conf import settings
 
-# Configure logging - Django will often handle the root configuration
+# Configure logging
 logger = logging.getLogger(__name__)
 
 # --- Global Configuration ---
-# Consider moving MODEL_NAME to your Django settings.py for easier configuration
-MODEL_NAME = 'all-MiniLM-L6-v2'
 DEFAULT_SIMILARITY_THRESHOLD = 0.7
 
-# --- Global Model Instance ---
-# Load the model once when the Django application starts (when this module is imported).
-# This prevents reloading the model on every request, which is performance-critical.
-try:
-    # Load the specified pre-trained Sentence Transformer model globally
-    print(f"DEBUG: Loading Sentence Transformer model: {MODEL_NAME}")
-    nlp_model = SentenceTransformer(MODEL_NAME)
-    print(f"DEBUG: Successfully loaded Sentence Transformer model: {MODEL_NAME}")
-    logger.info(f"Successfully loaded Sentence Transformer model: {MODEL_NAME}")
-except Exception as e:
-    # Log a critical error if the model fails to load.
-    # The functions below will check if nlp_model is None.
-    print(f"DEBUG ERROR: Failed to load Sentence Transformer model '{MODEL_NAME}'. Error: {e}")
-    logger.error(
-        f"CRITICAL: Failed to load Sentence Transformer model '{MODEL_NAME}'. "
-        f"NLP similarity features will be unavailable. Error: {e}",
-        exc_info=True # Include traceback in the log
-    )
-    nlp_model = None
+# --- TF-IDF Implementation ---
+class SimpleTFIDF:
+    """A lightweight TF-IDF implementation without external dependencies"""
+    
+    def __init__(self):
+        self.document_count = 0
+        self.vocabulary = {}
+        self.idf = {}
+        self.documents = []
+        
+    def preprocess(self, text):
+        """Simple text preprocessing"""
+        # Convert to lowercase and remove punctuation
+        text = text.lower()
+        text = re.sub(r'[^\w\s]', '', text)
+        # Split into words
+        return text.split()
+        
+    def fit(self, documents):
+        """Fit the TF-IDF model on a list of documents"""
+        self.documents = [self.preprocess(doc) for doc in documents]
+        self.document_count = len(self.documents)
+        
+        # Build vocabulary and document frequency
+        doc_frequency = Counter()
+        for doc in self.documents:
+            # Count each word only once per document
+            words_in_doc = set(doc)
+            for word in words_in_doc:
+                doc_frequency[word] += 1
+        
+        # Calculate IDF for each word
+        self.vocabulary = {word: idx for idx, word in enumerate(doc_frequency.keys())}
+        self.idf = {word: math.log(self.document_count / (freq + 1)) + 1 
+                   for word, freq in doc_frequency.items()}
+        
+    def transform(self, documents):
+        """Transform documents to TF-IDF vectors"""
+        if not isinstance(documents, list):
+            documents = [documents]
+            
+        preprocessed = [self.preprocess(doc) for doc in documents]
+        result = []
+        
+        for doc in preprocessed:
+            # Calculate term frequency
+            tf = Counter(doc)
+            
+            # Create TF-IDF vector
+            tfidf_vector = [0] * len(self.vocabulary)
+            for word, count in tf.items():
+                if word in self.vocabulary:
+                    idx = self.vocabulary[word]
+                    tfidf_vector[idx] = count * self.idf.get(word, 0)
+            
+            # Normalize vector
+            magnitude = math.sqrt(sum(v * v for v in tfidf_vector))
+            if magnitude > 0:
+                tfidf_vector = [v / magnitude for v in tfidf_vector]
+                
+            result.append(tfidf_vector)
+            
+        return result
 
-# --- Utility Functions ---
+# --- Global Model Instance ---
+_tfidf_model = None
+
+def get_model():
+    """Get or initialize the TF-IDF model"""
+    global _tfidf_model
+    if _tfidf_model is None:
+        try:
+            _tfidf_model = SimpleTFIDF()
+            logger.info("Initialized lightweight TF-IDF model")
+        except Exception as e:
+            logger.error(f"Failed to initialize TF-IDF model: {e}", exc_info=True)
+            return None
+    return _tfidf_model
+
+def cosine_similarity(vec1, vec2):
+    """Calculate cosine similarity between two vectors"""
+    if not vec1 or not vec2 or len(vec1) != len(vec2):
+        return 0.0
+    
+    dot_product = sum(a * b for a, b in zip(vec1, vec2))
+    return dot_product  # Vectors are already normalized
 
 def find_similar_faq(
     query_question: str,
@@ -40,61 +106,63 @@ def find_similar_faq(
     threshold: Optional[float] = None
 ) -> int:
     """
-    Finds the index of the most similar FAQ question based on semantic meaning.
+    Finds the index of the most similar FAQ question based on text similarity.
 
     Args:
         query_question (str): The input question string.
         faq_list (list[str]): A list of FAQ question strings.
-        threshold (float, optional): The minimum cosine similarity score (0-1).
+        threshold (float, optional): The minimum similarity score (0-1).
                                      Defaults to DEFAULT_SIMILARITY_THRESHOLD.
 
     Returns:
         int: The index (position) of the most similar FAQ in the faq_list.
-             Returns -1 if no FAQ meets the threshold or if the model failed to load.
+             Returns -1 if no FAQ meets the threshold.
     """
-    print(f"DEBUG: find_similar_faq called with query: '{query_question[:50]}...'")
-    print(f"DEBUG: FAQ list contains {len(faq_list)} items")
+    logger.debug(f"find_similar_faq called with query: '{query_question[:50]}...'")
     
     # Return -1 immediately if the FAQ list is empty
     if not faq_list:
-        print("DEBUG: FAQ list is empty, returning -1")
+        logger.debug("FAQ list is empty, returning -1")
         return -1
 
     current_threshold = threshold if threshold is not None else DEFAULT_SIMILARITY_THRESHOLD
-    print(f"DEBUG: Using similarity threshold: {current_threshold}")
-
+    
     try:
-        # Load the model for each function call (like in the working code)
-        print(f"DEBUG: Loading Sentence Transformer model: {MODEL_NAME}")
-        model = SentenceTransformer(MODEL_NAME)
+        # Get or create model
+        model = get_model()
         
-        # Convert the input question and all FAQ questions into embeddings
-        print("DEBUG: Generating embeddings for query question")
-        query_embedding = model.encode(query_question, convert_to_tensor=True)
-        print("DEBUG: Generating embeddings for FAQ list")
-        faq_embeddings = model.encode(faq_list, convert_to_tensor=True)
-
-        # Calculate cosine similarities
-        print("DEBUG: Calculating cosine similarities")
-        cosine_scores = util.cos_sim(query_embedding, faq_embeddings)
-
-        # Find the highest score and its index
-        best_match_index = cosine_scores[0].argmax().item()
-        best_match_score = cosine_scores[0][best_match_index].item()
-        print(f"DEBUG: Best match index: {best_match_index}, score: {best_match_score}")
-
+        # Fit model on FAQ list plus query
+        all_texts = faq_list + [query_question]
+        model.fit(all_texts)
+        
+        # Transform all texts to vectors
+        vectors = model.transform(all_texts)
+        
+        # Get query vector (last one) and FAQ vectors
+        query_vector = vectors[-1]
+        faq_vectors = vectors[:-1]
+        
+        # Find best match
+        best_match_index = -1
+        best_match_score = -1
+        
+        for i, faq_vector in enumerate(faq_vectors):
+            score = cosine_similarity(query_vector, faq_vector)
+            
+            if score > best_match_score:
+                best_match_score = score
+                best_match_index = i
+        
         # Check against threshold
         if best_match_score >= current_threshold:
-            print(f"DEBUG: Match found! Index: {best_match_index}, Score: {best_match_score}")
+            logger.debug(f"Match found! Index: {best_match_index}, Score: {best_match_score}")
             return best_match_index
         else:
-            print(f"DEBUG: Best match score {best_match_score} below threshold {current_threshold}")
+            logger.debug(f"Best match score {best_match_score} below threshold {current_threshold}")
             return -1
     except Exception as e:
-        print(f"DEBUG ERROR: Error during FAQ similarity calculation: {e}")
         logger.error(f"Error during FAQ similarity calculation: {e}", exc_info=True)
-        return -1 # Return -1 on error
-
+        return -1
 
 def check_question_frequency(
     query_question: str,
@@ -102,13 +170,13 @@ def check_question_frequency(
     threshold: Optional[float] = None
 ) -> Tuple[bool, int]:
     """
-    Checks if a question is semantically similar to others in a given list
+    Checks if a question is similar to others in a given list
     and counts how many similar questions exist.
 
     Args:
         query_question (str): The input question string.
         question_list (list[str]): A list of question strings to compare against.
-        threshold (float, optional): The minimum cosine similarity score to consider
+        threshold (float, optional): The minimum similarity score to consider
                                      another question as "similar".
                                      Defaults to DEFAULT_SIMILARITY_THRESHOLD.
 
@@ -118,48 +186,46 @@ def check_question_frequency(
                        is found in the list, False otherwise.
                - int: The total count of questions in the list considered similar.
     """
-    print(f"DEBUG: check_question_frequency called with query: '{query_question[:50]}...'")
-    print(f"DEBUG: Question list contains {len(question_list)} items")
+    logger.debug(f"check_question_frequency called with query: '{query_question[:50]}...'")
     
     # Return (False, 0) immediately if the comparison list is empty
     if not question_list:
-        print("DEBUG: Question list is empty, returning False, 0")
+        logger.debug("Question list is empty, returning False, 0")
         return False, 0
 
     current_threshold = threshold if threshold is not None else DEFAULT_SIMILARITY_THRESHOLD
-    print(f"DEBUG: Using similarity threshold: {current_threshold}")
-
+    
     try:
-        # Load the model for each function call (like in the working code)
-        print(f"DEBUG: Loading Sentence Transformer model: {MODEL_NAME}")
-        model = SentenceTransformer(MODEL_NAME)
+        # Get or create model
+        model = get_model()
         
-        # Generate embeddings
-        print("DEBUG: Generating embeddings for query question")
-        query_embedding = model.encode(query_question, convert_to_tensor=True)
-        print("DEBUG: Generating embeddings for question list")
-        list_embeddings = model.encode(question_list, convert_to_tensor=True)
-
-        # Calculate cosine similarities
-        print("DEBUG: Calculating cosine similarities")
-        cosine_scores = util.cos_sim(query_embedding, list_embeddings)
-
-        # Count similar questions above the threshold
+        # Fit model on question list plus query
+        all_texts = question_list + [query_question]
+        model.fit(all_texts)
+        
+        # Transform all texts to vectors
+        vectors = model.transform(all_texts)
+        
+        # Get query vector (last one) and question vectors
+        query_vector = vectors[-1]
+        question_vectors = vectors[:-1]
+        
+        # Count similar questions
         similar_count = 0
-        print("DEBUG: Checking similarity scores against threshold")
-        for i in range(len(question_list)):
-            score = cosine_scores[0][i].item()
+        
+        for i, question_vector in enumerate(question_vectors):
+            score = cosine_similarity(query_vector, question_vector)
+            
             if score >= current_threshold:
                 similar_count += 1
-                print(f"DEBUG: Similar question found at index {i}: '{question_list[i][:50]}...', score: {score}")
-
+                logger.debug(f"Similar question found at index {i}, score: {score}")
+        
         # Determine if frequent (at least one similar found)
         is_frequent = similar_count > 0
-        print(f"DEBUG: Final result: is_frequent={is_frequent}, similar_count={similar_count}")
-
+        logger.debug(f"Final result: is_frequent={is_frequent}, similar_count={similar_count}")
+        
         return is_frequent, similar_count
     except Exception as e:
-        print(f"DEBUG ERROR: Error during question frequency calculation: {e}")
         logger.error(f"Error during question frequency calculation: {e}", exc_info=True)
-        return False, 0 # Return False, 0 on error
+        return False, 0
 
