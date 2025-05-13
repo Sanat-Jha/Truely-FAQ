@@ -3,14 +3,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 
+# Add manager_email field to the Website model
 class Website(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='websites')
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=100)
     url = models.URLField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     api_key = models.CharField(max_length=64, unique=True, blank=True)
+    manager_email = models.EmailField(max_length=255, blank=True, help_text="Email address for the website manager")
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
+    
+    
     def save(self, *args, **kwargs):
         if not self.api_key:
             self.api_key = self._generate_api_key()
