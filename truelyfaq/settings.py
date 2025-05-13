@@ -105,3 +105,9 @@ EMAIL_HOST_PASSWORD = 'vler pgft pzhc pimv'
 
 
 FAQ_SIMILARITY_THRESHOLD=0.3
+
+# Authentication redirect settings
+LOGIN_REDIRECT_URL = '/accounts/dashboard/'  # Redirect to dashboard after login
+LOGOUT_REDIRECT_URL = '/'  # Redirect to homepage after logout
+LOGIN_URL = '/accounts/login/'  # Redirect to login page when login is required
+
