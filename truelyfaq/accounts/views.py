@@ -106,12 +106,23 @@ def website_detail(request, website_id):
     # Calculate unanswered count
     unanswered_count = questions.filter(is_answered=False).count()
     
-    # Handle regenerating API key
-    if request.method == 'POST' and 'regenerate_api_key' in request.POST:
-        website.api_key = website._generate_api_key()
-        website.save()
-        messages.success(request, 'API key regenerated successfully.')
-        return redirect('website_detail', website_id=website.id)
+    # Handle form submissions
+    if request.method == 'POST':
+        # Handle regenerating API key
+        if 'regenerate_api_key' in request.POST:
+            website.api_key = website._generate_api_key()
+            website.save()
+            messages.success(request, 'API key regenerated successfully.')
+            return redirect('website_detail', website_id=website.id)
+        
+        # Handle updating manager email
+        elif 'update_manager_email' in request.POST:
+            manager_email = request.POST.get('manager_email')
+            if manager_email:
+                website.manager_email = manager_email
+                website.save()
+                messages.success(request, 'Manager email updated successfully.')
+            return redirect('website_detail', website_id=website.id)
     
     context = {
         'website': website,

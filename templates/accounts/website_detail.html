@@ -24,6 +24,35 @@
             <input type="hidden" name="regenerate_api_key" value="true">
             <button type="submit" class="text-red-600 hover:text-red-800 text-sm" onclick="return confirm('Are you sure? This will invalidate your current API key.')">Regenerate API Key</button>
         </form>
+        
+        <!-- Manager Email Section -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <h3 class="text-lg font-semibold mb-3">Manager Email</h3>
+            <p class="text-sm text-gray-600 mb-3">This email will receive notifications about new questions.</p>
+            
+            <div id="email-display" class="flex items-center justify-between">
+                <span class="text-gray-800">{{ website.manager_email|default:"No email set" }}</span>
+                <button onclick="showEmailForm()" class="text-xs px-3 py-1 rounded-md bg-blue-100 text-blue-800 hover:bg-blue-200 transition duration-200">
+                    {% if website.manager_email %}Edit{% else %}Add{% endif %}
+                </button>
+            </div>
+            
+            <div id="email-form" class="mt-3 hidden">
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="flex items-center">
+                        <input type="email" name="manager_email" value="{{ website.manager_email|default:'' }}" 
+                               class="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" 
+                               placeholder="manager@example.com" required>
+                        <input type="hidden" name="update_manager_email" value="true">
+                        <div class="ml-2 flex space-x-2">
+                            <button type="submit" class="bg-primary text-white py-1 px-3 rounded-md hover:bg-blue-600 transition duration-200 text-sm">Save</button>
+                            <button type="button" onclick="hideEmailForm()" class="bg-gray-200 text-gray-800 py-1 px-3 rounded-md hover:bg-gray-300 transition duration-200 text-sm">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     
     <div class="bg-white p-6 rounded-lg shadow-md">
@@ -185,6 +214,17 @@
     
     function hideEditForm(faqId) {
         document.getElementById('edit-form-' + faqId).classList.add('hidden');
+    }
+    
+    // Manager Email Form Functions
+    function showEmailForm() {
+        document.getElementById('email-display').classList.add('hidden');
+        document.getElementById('email-form').classList.remove('hidden');
+    }
+    
+    function hideEmailForm() {
+        document.getElementById('email-form').classList.add('hidden');
+        document.getElementById('email-display').classList.remove('hidden');
     }
 </script>
 {% endblock %}

@@ -9,7 +9,7 @@ class Website(models.Model):
     url = models.URLField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     api_key = models.CharField(max_length=64, unique=True, blank=True)
-    manager_email = models.EmailField(max_length=255, blank=True, help_text="Email address for the website manager")
+    manager_email = models.EmailField(max_length=255, blank=True,null=True, help_text="Email address for the website manager")
     created_at = models.DateTimeField(auto_now_add=True)
     
     
