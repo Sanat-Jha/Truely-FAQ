@@ -1,12 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import Website
-from .forms import WebsiteForm  # Import the WebsiteForm
+from .forms import WebsiteForm
 from truelyfaq.questions.models import Question
 from truelyfaq.faqs.models import FAQ
-from django.http import JsonResponse
 
 def register(request):
     if request.method == 'POST':
@@ -79,11 +79,9 @@ def delete_website(request, website_id):
         try:
             website_name = website.name
             # Deleting the website will cascade and delete related Questions, Answers, FAQs
-            # Ensure your models have on_delete=models.CASCADE set up correctly for this.
             website.delete()
             messages.success(request, f'Website "{website_name}" and all its data have been deleted successfully.')
         except Exception as e:
-            # Log the exception e for debugging if needed
             messages.error(request, f"An error occurred while deleting the website.")
         return redirect('dashboard')
     else:
@@ -118,7 +116,7 @@ def website_detail(request, website_id):
     context = {
         'website': website,
         'questions': questions,
-        'faqs': faqs,  # Add FAQs to the context
+        'faqs': faqs,
         'unanswered_count': unanswered_count
     }
     

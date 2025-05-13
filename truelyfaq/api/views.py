@@ -1,21 +1,24 @@
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from django.core.mail import send_mail
-from django.conf import settings
-from django.db.models import Count
-
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from truelyfaq.questions.models import Question
-from truelyfaq.accounts.models import Website
-from .serializers import QuestionSerializer, FAQSerializer, QuestionCreateSerializer
-from truelyfaq.utils.email_utils import send_email_in_thread
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+
+from truelyfaq.accounts.models import Website
+from truelyfaq.questions.models import Question, Answer
+from truelyfaq.faqs.models import FAQ
+from .serializers import (
+    WebsiteSerializer,
+    QuestionSerializer,
+    QuestionCreateSerializer,
+    AnswerCreateSerializer,
+    FAQSerializer,
+    FAQVisibilitySerializer,
+)
+from .permissions import IsWebsiteOwner, HasValidAPIKey
+from truelyfaq.questions.views import send_email_in_thread
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -103,26 +106,6 @@ def get_faqs(request):
         "results": serializer.data
     })
 
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from django.core.mail import send_mail
-from django.conf import settings
-from django.db.models import Count
-from truelyfaq.accounts.models import Website
-from truelyfaq.questions.models import Question, Answer
-from truelyfaq.faqs.models import FAQ
-from .serializers import (
-    WebsiteSerializer,
-    QuestionSerializer,
-    QuestionCreateSerializer,
-    AnswerCreateSerializer,
-    FAQSerializer,
-    FAQVisibilitySerializer,
-)
-from .permissions import IsWebsiteOwner, HasValidAPIKey
-
 class WebsiteViewSet(viewsets.ModelViewSet):
     serializer_class = WebsiteSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -205,7 +188,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
             self._send_answer_email(question, answer)
             
             # Check if this should be added to FAQs
-            print("Checking for FAQ...1")  # Debugging line
             self._check_for_faq(question, answer)
             
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -252,7 +234,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 question.save(update_fields=['is_answered'])
             
             # Use the comprehensive check_similar_questions function
-            print("Checking for FAQ...2")  # Debugging line
             faq = check_similar_questions(question)
             
             if faq:
