@@ -70,7 +70,7 @@
 
             <h3>Submit a Question</h3>
             <p>Use this code to submit a question from your contact form:</p>
-            <pre><code>const response = await fetch(`{hosting url}/api/questions/submit/`, {
+            <pre><code>const response = await fetch(`https://truelyfaq.pythonanywhere.com/api/questions/submit/`, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -84,7 +84,7 @@
 
             <h3>Fetch FAQs</h3>
             <p>Use this code to retrieve FAQs for display on your website:</p>
-            <pre><code>const response = await fetch(`{hosting url}/api/faqs/`, {
+            <pre><code>const response = await fetch(`https://truelyfaq.pythonanywhere.com/api/faqs/`, {
     method: 'GET',
     headers: {
         'X-Api-Key': this.apiKey
@@ -101,6 +101,46 @@
                 <li><strong>Answer Questions:</strong> View and respond to user questions.</li>
                 <li><strong>Manage FAQs:</strong> Edit, delete, or toggle visibility of automatically generated FAQs.</li>
             </ul>
+            
+            <h3>Answering User Questions</h3>
+            <p>When users submit questions through your website, they appear in your dashboard for you to answer:</p>
+            <ol>
+                <li>Navigate to the specific website by clicking "Manage Website" from your dashboard</li>
+                <li>You'll see a list of all questions, with unanswered questions highlighted</li>
+                <li>Click on any unanswered question to open the answer form</li>
+                <li>Type your response in the answer field and click "Submit Answer"</li>
+                <li>The system will automatically:
+                    <ul>
+                        <li>Mark the question as answered</li>
+                        <li>Send an email notification to the user who asked the question</li>
+                        <li>Generate a new FAQ entry based on the question and your answer</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <h3>Managing FAQ Visibility</h3>
+            <p>TrulyFAQ automatically generates FAQ entries from answered questions. You can control which FAQs are visible on your website:</p>
+            <ol>
+                <li>Navigate to the "FAQs" section of your website's detail page</li>
+                <li>Each FAQ has a visibility toggle button (Show/Hide)</li>
+                <li>Click the toggle button to instantly change the visibility status:
+                    <ul>
+                        <li><strong>Visible FAQs</strong> will appear when users fetch FAQs through the API</li>
+                        <li><strong>Hidden FAQs</strong> will be stored in your account but won't be publicly accessible</li>
+                    </ul>
+                </li>
+                <li>The visibility status is indicated by a color-coded badge (green for visible, gray for hidden)</li>
+                <li>Changes take effect immediately - no need to save or refresh</li>
+            </ol>
+            
+            <p>This visibility toggle feature allows you to:
+                <ul>
+                    <li>Curate which FAQs are most relevant to your users</li>
+                    <li>Temporarily hide FAQs that need revision</li>
+                    <li>Control the number of FAQs displayed on your website</li>
+                    <li>Hide duplicate or similar questions while keeping the information in your database</li>
+                </ul>
+            </p>
         </section>
 
         <section id="support" class="reveal">
