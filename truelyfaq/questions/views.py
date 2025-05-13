@@ -1,27 +1,41 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.utils import timezone  # Add this import
+from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from .models import Question, Answer
 from truelyfaq.faqs.models import FAQ
 from truelyfaq.faqs.utils import check_similar_questions
 import threading
 
-def send_answer_email(subject, message, recipient, answer_id):
-    try:
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_HOST_USER,
-            [recipient],
-            fail_silently=False,
-        )
-        # Update email_sent status
-        Answer.objects.filter(id=answer_id).update(email_sent=True)
-    except Exception as e:
-        print(f"Email sending failed: {e}")
+# Utility function for sending emails in a background thread
+def send_email_in_thread(subject, message, recipient_list, html_message=None, answer_id=None):
+    """
+    Send an email in a separate thread to avoid blocking the main thread.
+    """
+    def email_task():
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=recipient_list,
+                html_message=html_message,
+                fail_silently=False,
+            )
+            # Update email_sent status if answer_id is provided
+            if answer_id:
+                Answer.objects.filter(id=answer_id).update(email_sent=True)
+        except Exception as e:
+            print(f"Email sending failed: {e}")
+    
+    # Start the email sending in a separate thread
+    email_thread = threading.Thread(target=email_task)
+    email_thread.daemon = True  # Thread will exit when main thread exits
+    email_thread.start()
 
 @login_required
 def answer_question(request, question_id):
@@ -47,23 +61,25 @@ def answer_question(request, question_id):
         
         # Prepare email content
         subject = f'Your question has been answered - {question.website.name}'
-        message = f"""
-Hello,
-
-Your question: "{question.question_text}"
-
-Has been answered: "{answer_text}"
-
-Thank you for using our service!
-{question.website.name} Team
-        """
         
-        # Start email sending in a separate thread
-        email_thread = threading.Thread(
-            target=send_answer_email,
-            args=(subject, message, question.user_email, answer.id)
+        # Create HTML message using the template
+        html_message = render_to_string('emails/answer_notification.html', {
+            'website_name': question.website.name,
+            'question_text': question.question_text,
+            'answer_text': answer_text
+        })
+        
+        # Create plain text version
+        plain_message = strip_tags(html_message)
+        
+        # Send email in background thread using the utility function
+        send_email_in_thread(
+            subject=subject,
+            message=plain_message,
+            recipient_list=[question.user_email],
+            html_message=html_message,
+            answer_id=answer.id
         )
-        email_thread.start()
         
         # Mark the question as answered
         question.is_answered = True

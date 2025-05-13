@@ -13,6 +13,9 @@ from rest_framework.response import Response
 from truelyfaq.questions.models import Question
 from truelyfaq.accounts.models import Website
 from .serializers import QuestionSerializer, FAQSerializer, QuestionCreateSerializer
+from truelyfaq.utils.email_utils import send_email_in_thread
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -20,11 +23,6 @@ def submit_question(request):
     """
     Submit a question via API
     """
-    # Add debugging
-    print("Received question submission request")
-    print(f"Headers: {request.headers}")
-    print(f"Data: {request.data}")
-    
     api_key = request.headers.get('X-Api-Key')
     if not api_key:
         return Response(
@@ -45,6 +43,30 @@ def submit_question(request):
         # Add website to validated data
         serializer.validated_data['website'] = website
         question = serializer.save()
+        
+        # Send email notification to the website manager if email is provided
+        if website.manager_email:
+            subject = f"New Question from {website.name}"
+            
+            # Create HTML message
+            html_message = render_to_string('emails/new_question.html', {
+                'website_name': website.name,
+                'question_text': question.question_text,
+                'user_email': question.user_email,
+                'dashboard_url': f"{request.build_absolute_uri('/accounts/dashboard/')}"
+            })
+            
+            # Plain text version
+            plain_message = strip_tags(html_message)
+            
+            # Send email in background thread
+            send_email_in_thread(
+                subject=subject,
+                message=plain_message,
+                recipient_list=[website.manager_email],
+                html_message=html_message
+            )
+        
         return Response(
             QuestionSerializer(question).data, 
             status=status.HTTP_201_CREATED
@@ -127,16 +149,37 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], permission_classes=[HasValidAPIKey])
     def submit(self, request):
-        serializer = QuestionCreateSerializer(data=request.data)
+        website = request.auth
+        
+        serializer = QuestionSerializer(data=request.data)
         if serializer.is_valid():
-            # Get the website from the API key
-            api_key = request.META.get('HTTP_X_API_KEY')
-            website = get_object_or_404(Website, api_key=api_key)
-            
-            # Create the question
+            # Save the question
             question = serializer.save(website=website)
             
-            return Response(QuestionSerializer(question).data, status=status.HTTP_201_CREATED)
+            # Send email notification to the website manager if email is provided
+            if website.manager_email:
+                subject = f"New Question from {website.name}"
+                
+                # Create HTML message
+                html_message = render_to_string('emails/new_question.html', {
+                    'website_name': website.name,
+                    'question_text': question.question_text,
+                    'user_email': question.user_email,
+                    'dashboard_url': f"{request.build_absolute_uri('/accounts/dashboard/')}"
+                })
+                
+                # Plain text version
+                plain_message = strip_tags(html_message)
+                
+                # Send email in background thread
+                send_email_in_thread(
+                    subject=subject,
+                    message=plain_message,
+                    recipient_list=[website.manager_email],
+                    html_message=html_message
+                )
+            
+            return Response({'success': True, 'message': 'Question submitted successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post'])
@@ -170,23 +213,24 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def _send_answer_email(self, question, answer):
         subject = f'Your question has been answered - {question.website.name}'
-        message = f"""
-        Hello,
-
-        Your question: "{question.question_text}"
-
-        Has been answered: "{answer.answer_text}"
-
-        Thank you for your inquiry!
-        {question.website.name} Team
-        """
+        
+        # Create HTML message
+        html_message = render_to_string('emails/answer_notification.html', {
+            'website_name': question.website.name,
+            'question_text': question.question_text,
+            'answer_text': answer.answer_text
+        })
+        
+        # Plain text version
+        plain_message = strip_tags(html_message)
+        
         try:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [question.user_email],
-                fail_silently=False,
+            # Send email in background thread
+            send_email_in_thread(
+                subject=subject,
+                message=plain_message,
+                recipient_list=[question.user_email],
+                html_message=html_message
             )
             answer.email_sent = True
             answer.save()

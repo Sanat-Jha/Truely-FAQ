@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+        }
+        .container {
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        .header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin: -25px -25px 25px;
+            text-align: center;
+        }
+        .header h2 {
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .logo img {
+            height: 40px;
+        }
+        .question {
+            background-color: #f8f9fa;
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 5px solid #007bff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .answer {
+            background-color: #e8f4ff;
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 5px solid #28a745;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .content {
+            font-size: 15px;
+            color: #444;
+        }
+        .greeting {
+            font-size: 17px;
+            margin-bottom: 20px;
+        }
+        .signature {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .team-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 13px;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Your Question Has Been Answered</h2>
+        </div>
+        
+        <div class="logo">
+            <!-- You can add your logo here -->
+            <!-- <img src="https://yourwebsite.com/logo.png" alt="{{ website_name }} Logo"> -->
+        </div>
+        
+        <p class="greeting">Hello,</p>
+        
+        <p>We're pleased to inform you that your recent question on <strong>{{ website_name }}</strong> has been answered by our team.</p>
+        
+        <div class="question">
+            <div class="section-title">Your Question:</div>
+            <div class="content">{{ question_text }}</div>
+        </div>
+        
+        <div class="answer">
+            <div class="section-title">Our Answer:</div>
+            <div class="content">{{ answer_text }}</div>
+        </div>
+        
+        <div class="signature">
+            <p>Thank you for reaching out to us. If you have any further questions, please don't hesitate to ask.</p>
+            <p class="team-name">{{ website_name }} Support Team</p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message from TrulyFAQ. Please do not reply to this email.</p>
+            <p>&copy; {{ website_name }} {% now "Y" %}</p>
+        </div>
+    </div>
+</body>
+</html>
