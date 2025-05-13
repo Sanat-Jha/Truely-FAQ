@@ -6,14 +6,108 @@
     <title>{% block title %}TrulyFAQ{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="shortcut icon" href="/static/img/logo.png" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4F46E5, #7C3AED);
+            --secondary-gradient: linear-gradient(135deg, #3B82F6, #2563EB);
+            --accent-gradient: linear-gradient(135deg, #10B981, #059669);
+            --soft-gradient: linear-gradient(135deg, #EFF6FF, #E0F2FE);
+        }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .text-gradient-primary {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .bg-gradient-primary {
+            background: var(--primary-gradient);
+        }
+        
+        .hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .glow-animation {
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(79, 70, 229, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.7); }
+            100% { box-shadow: 0 0 5px rgba(79, 70, 229, 0.4); }
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        footer {
+            margin-top: auto;
+        }
+    </style>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#3B82F6',
-                        secondary: '#10B981',
-                        dark: '#1F2937',
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        secondary: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        }
+                    },
+                    animation: {
+                        'bounce-gentle': 'bounce-gentle 3s infinite',
+                    },
+                    keyframes: {
+                        'bounce-gentle': {
+                            '0%, 100%': { transform: 'translateY(-5%)' },
+                            '50%': { transform: 'translateY(0)' },
+                        }
                     }
                 }
             }
@@ -21,50 +115,129 @@
     </script>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-dark text-white shadow-md">
+<body class="hero-pattern">
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-md transition-all duration-300">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="{% url 'dashboard' %}" class="flex items-center">
-                <img src="/static/img/logo.png" alt="TrulyFAQ Logo" class="h-8 mr-2">
-                <span class="text-xl font-bold">TrulyFAQ</span>
+            <a href="{% url 'dashboard' %}" class="flex items-center group">
+                <div class="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                    <img src="/static/img/logo.png" alt="TrulyFAQ Logo" class="w-6 h-6 object-contain">
+                </div>
+                <span class="ml-2 text-xl font-bold text-gradient-primary">TrulyFAQ</span>
             </a>
-            <div class="flex items-center space-x-4">
+            <div class="hidden md:flex items-center space-x-6">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded hover:bg-gray-700">Dashboard</a>
-                    <a href="/documentation" class="px-3 py-2 rounded hover:bg-gray-700">Documentation</a>
+                    <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-secondary-600 font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-secondary-600 after:transition-all">Dashboard</a>
+                    <a href="/documentation" class="text-gray-700 hover:text-secondary-600 font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-secondary-600 after:transition-all">Documentation</a>
                     <form method="post" action="{% url 'logout' %}" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="px-3 py-2 rounded hover:bg-gray-700">Logout</button>
+                        <button type="submit" class="px-5 py-2 rounded-lg border border-gray-300 hover:border-secondary-500 font-medium text-gray-700 hover:text-secondary-600 transition-all hover:shadow-md">Logout</button>
                     </form>
                 {% else %}
-                    <a href="/documentation" class="px-3 py-2 rounded hover:bg-gray-700">Documentation</a>
-                    <a href="{% url 'login' %}" class="px-3 py-2 rounded hover:bg-gray-700">Login</a>
-                    <a href="{% url 'register' %}" class="px-3 py-2 rounded hover:bg-gray-700">Register</a>
+                    <a href="/documentation" class="text-gray-700 hover:text-secondary-600 font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-secondary-600 after:transition-all">Documentation</a>
+                    <a href="{% url 'login' %}" class="px-5 py-2 rounded-lg border border-gray-300 hover:border-secondary-500 font-medium text-gray-700 hover:text-secondary-600 transition-all hover:shadow-md">Login</a>
+                    <a href="{% url 'register' %}" class="px-5 py-2 rounded-lg bg-gradient-primary text-white font-medium hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 glow-animation">Register</a>
+                {% endif %}
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg rounded-b-lg">
+            <div class="px-4 py-3 space-y-2">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 font-medium">Dashboard</a>
+                    <a href="/documentation" class="block py-2 px-4 rounded-lg hover:bg-gray-100 font-medium">Documentation</a>
+                    <form method="post" action="{% url 'logout' %}" class="block">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-left py-2 px-4 rounded-lg hover:bg-gray-100 font-medium">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="/documentation" class="block py-2 px-4 rounded-lg hover:bg-gray-100 font-medium">Documentation</a>
+                    <a href="{% url 'login' %}" class="block py-2 px-4 rounded-lg hover:bg-gray-100 font-medium">Login</a>
+                    <a href="{% url 'register' %}" class="block py-2 px-4 rounded-lg bg-gradient-primary text-white font-medium">Register</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 py-6">
+    <main class="container mx-auto px-4 py-8 mt-6">
         {% if messages %}
             <div class="mb-6">
                 {% for message in messages %}
-                    <div class="p-4 mb-2 rounded {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">
-                        {{ message }}
+                    <div class="p-4 mb-3 rounded-lg animate__animated animate__fadeIn relative overflow-hidden {% if message.tags == 'success' %}bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500{% elif message.tags == 'error' %}bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500{% else %}bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500{% endif %}">
+                        <div class="relative z-10 flex items-center">
+                            <span class="mr-3 {% if message.tags == 'success' %}text-green-500{% elif message.tags == 'error' %}text-red-500{% else %}text-blue-500{% endif %}">
+                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} text-xl"></i>
+                            </span>
+                            <span class="{% if message.tags == 'success' %}text-green-700{% elif message.tags == 'error' %}text-red-700{% else %}text-blue-700{% endif %}">{{ message }}</span>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
 
-        {% block content %}{% endblock %}
-    </div>
+        <div class="animate__animated animate__fadeIn" data-aos="fade-up">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
 
-    <footer class="bg-dark text-white py-6 mt-12">
-        <div class="container mx-auto px-4">
-            <p class="text-center">&copy; {% now "Y" %} TrulyFAQ. All rights reserved.</p>
+    <footer class="bg-gradient-primary text-white py-8 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute inset-0 hero-pattern"></div>
+        </div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center justify-center md:justify-start">
+                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-md">
+                            <img src="/static/img/logo.png" alt="TrulyFAQ Logo" class="w-5 h-5 object-contain">
+                        </div>
+                        <span class="ml-2 text-lg font-bold">TrulyFAQ</span>
+                    </div>
+                </div>
+                <p class="text-center text-white/90">&copy; {% now "Y" %} TrulyFAQ. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        // Initialize AOS animations
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                once: true,
+                easing: 'ease-out-cubic',
+            });
+            
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Fade out messages after 5 seconds
+            const messages = document.querySelectorAll('.animate__fadeIn[class*="bg-gradient-to-r"]');
+            if (messages.length > 0) {
+                setTimeout(() => {
+                    messages.forEach(message => {
+                        message.classList.add('animate__fadeOut');
+                        setTimeout(() => {
+                            message.style.display = 'none';
+                        }, 1000);
+                    });
+                }, 5000);
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
